@@ -1,6 +1,6 @@
 function Cabecalho() {
     return (
-        <h1>Meu primeiro projeto React</h1>
+        <h1>Meu projeto </h1>
     );
 }
 export default Cabecalho;

@@ -1,59 +1,84 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 function Tarefas() {
     const [listaTarefas, setListaTarefas] = useState([]);
-    const descricaoTarefaInputRef = useRef()
+    const [descricaoEditando, setDescricaoEditando] = useState('');
+    const descricaoTarefaInputRef = useRef();
 
     function adicionarTarefa() {
         const novaTarefaDescricao = descricaoTarefaInputRef.current.value;
 
-        console.log(descricaoTarefaInputRef.current.value)
-        listaTarefas.push(
+        setListaTarefas([
+            ...listaTarefas,
             {
-                descricao: descricaoTarefaInputRef.current.value,
+                descricao: novaTarefaDescricao,
                 finalizado: false
             }
-        );
+        ]);
 
-        descricaoTarefaInputRef.current.value = '' // Limpa o input quando cadastra a tarefa
+        localStorage.setItem("Tarefa", JSON.stringify(setListaTarefas));
 
-        setListaTarefas(listaTarefas.slice());
-        console.log('Cadastrado');
+        descricaoTarefaInputRef.current.value = ''; // Limpa o input quando cadastra a tarefa
     }
+
+    var arr = [];
 
     function atualizarTarefa(tarefaAtual) {
-        tarefaAtual.finalizado = !tarefaAtual.finalizado;
-        setListaTarefas(listaTarefas.slice());
+        const novasTarefas = listaTarefas.map(tarefa => {
+            if (tarefa === tarefaAtual) {
+                return { ...tarefa, finalizado: !tarefa.finalizado };
+            }
+            return tarefa;
+        });
+        setListaTarefas(novasTarefas);
+
     }
 
-    function pegaEstilo(tarefaAtual) {
-        if (tarefaAtual.finalizado) {
-            return 'line-through';
-        }
-        return 'none';
+    function removerTarefa(tarefaParaRemover) {
+        const novasTarefas = listaTarefas.filter(tarefa => tarefa !== tarefaParaRemover);
+        setListaTarefas(novasTarefas);
+    }
+
+    function editarTarefa(tarefaParaEditar) {
+        setDescricaoEditando(tarefaParaEditar.descricao);
+        setListaTarefas(listaTarefas.filter(tarefa => tarefa !== tarefaParaEditar));
+    }
+
+    function salvarTarefaEditada() {
+        setListaTarefas([
+            ...listaTarefas,
+            {
+                descricao: descricaoEditando,
+                finalizado: false
+            }
+        ]);
+        setDescricaoEditando('');
     }
 
     return (
         <div>
-            <input type="text" ref={descricaoTarefaInputRef}/>
+            <input type="text" ref={descricaoTarefaInputRef} />
             <br></br>
-            <button onClick={adicionarTarefa}>Cadastrar</button>
-            <br />
+            <br></br>
+            <button onClick={descricaoEditando ? salvarTarefaEditada : adicionarTarefa}>
+                {descricaoEditando ? "Salvar" : "Cadastrar"}
+            </button>
             <div>
-                {
-                    listaTarefas.map(tarefaAtual => {
-                        return <div style={
-                            {
-                                margin: '10px',
-                                color: 'white',
-                                backgroundColor: 'aqua',
-                                textDecoration: pegaEstilo(tarefaAtual)
-                            }
-                        } onClick={() => atualizarTarefa(tarefaAtual)}>{tarefaAtual.descricao}</div>
-                    })
-                }
+                {listaTarefas.map(tarefaAtual => (
+                    <div key={tarefaAtual.descricao} style={{
+
+                        backgroundColor: 'black',
+                        textDecoration: tarefaAtual.finalizado ? 'line-through' : 'none'
+                    }}>
+                        <span onClick={() => atualizarTarefa(tarefaAtual)}>{tarefaAtual.descricao}</span>
+                        <br></br>
+                        <button onClick={() => removerTarefa(tarefaAtual)}>Remover</button>
+                        <button onClick={() => editarTarefa(tarefaAtual)}>Editar</button>
+                    </div>
+                ))}
             </div>
         </div>
     );
 }
+
 export default Tarefas;
