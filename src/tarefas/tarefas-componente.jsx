@@ -47,9 +47,13 @@ function Tarefas() {
             {
                 descricao: descricaoEditando,
                 finalizado: false
-            }
+            } 
         ]);
         setDescricaoEditando('');
+    }
+
+    function localStorageCadastro(tarefas) {
+        localStorage.setItem("tarefa", JSON.stringify(tarefas));
     }
 
     return (
