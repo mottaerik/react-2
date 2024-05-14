@@ -2,26 +2,23 @@ import { useRef, useState, useEffect } from "react";
 
 function Tarefas() {
     const [listaTarefas, setListaTarefas] = useState([]);
-    const [descricaoEditando, setDescricaoEditando] = useState('');
+    const [descricaoEditando, setDescricaoEditando] = useState(null);
     const descricaoTarefaInputRef = useRef();
+    
+    useEffect(() => {
+        const tarefasSalvas = JSON.parse(localStorage.getItem("tarefa")) || [];
+        setListaTarefas(tarefasSalvas);
+    }, []);
 
     function adicionarTarefa() {
-        const novaTarefaDescricao = descricaoTarefaInputRef.current.value;
-
-        setListaTarefas([
-            ...listaTarefas,
-            {
-                descricao: novaTarefaDescricao,
-                finalizado: false
-            }
-        ]);
-
-        localStorage.setItem("Tarefa", JSON.stringify(setListaTarefas));
-
-        descricaoTarefaInputRef.current.value = ''; // Limpa o input quando cadastra a tarefa
+        const novaTarefa = {
+            descricao: descricaoTarefaInputRef.current.value,
+            finalizado: false
+        };
+        setListaTarefas([...listaTarefas, novaTarefa]);
+        localStorageCadastro([...listaTarefas, novaTarefa]);
+        descricaoTarefaInputRef.current.value = "";
     }
-
-    var arr = [];
 
     function atualizarTarefa(tarefaAtual) {
         const novasTarefas = listaTarefas.map(tarefa => {
@@ -60,9 +57,7 @@ function Tarefas() {
             <input type="text" ref={descricaoTarefaInputRef} />
             <br></br>
             <br></br>
-            <button onClick={descricaoEditando ? salvarTarefaEditada : adicionarTarefa}>
-                {descricaoEditando ? "Salvar" : "Cadastrar"}
-            </button>
+            <button onClick={adicionarTarefa}>Cadastrar</button>
             <div>
                 {listaTarefas.map(tarefaAtual => (
                     <div key={tarefaAtual.descricao} style={{
